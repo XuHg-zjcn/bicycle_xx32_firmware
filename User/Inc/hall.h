@@ -1,5 +1,5 @@
 /*
- * 自行车xx32固件主程序文件
+ * 霍尔传感器驱动程序
  * Copyright (C) 2025  徐瑞骏(科技骏马)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,20 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "stm32f1xx_ll_gpio.h"
-#include "stm32f1xx_ll_bus.h"
-#include "stm32f1xx_ll_exti.h"
-#include "ch32v203x8.h"
-#include "hall.h"
+#ifndef HALL_H
+#define HALL_H
 
-#define LED1_GPIO_PORT GPIOC
-#define LED1_PIN       LL_GPIO_PIN_13
+void Hall_init();
 
-
-void main()
-{
-  Hall_init();
-  while(1){
-    
-  }
-}
+#endif
