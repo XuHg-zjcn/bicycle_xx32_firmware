@@ -19,5 +19,6 @@
 #define HALL_H
 
 void Hall_init();
+void TIM_CaptrueCallback(uint32_t cap_val);
 
 #endif

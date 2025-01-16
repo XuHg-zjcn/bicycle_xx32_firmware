@@ -20,6 +20,7 @@
 #include "stm32f1xx_ll_exti.h"
 #include "ch32v203x8.h"
 #include "hall.h"
+#include "usart.h"
 
 #define LED1_GPIO_PORT GPIOC
 #define LED1_PIN       LL_GPIO_PIN_13
@@ -27,6 +28,9 @@
 
 void main()
 {
+  SystemCoreClockUpdate();
+  USART_Init();
+  USART_Send("Hello\n", 6);
   Hall_init();
   while(1){
     

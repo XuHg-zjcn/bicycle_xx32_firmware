@@ -1,5 +1,5 @@
 /*
- * 中断服务程序
+ * 配置文件
  * Copyright (C) 2025  徐瑞骏(科技骏马)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,38 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ch32v203_it.h"
-#include "stm32f1xx_ll_exti.h"
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include "stm32f1xx_ll_gpio.h"
-#include "stm32f1xx_ll_tim.h"
-#include "usart.h"
-#include "hall.h"
 
-void Default_Handler(void) __attribute__((interrupt));
-void EXTI0_IRQHandler(void) __attribute__((interrupt));
-void TIM2_IRQHandler(void) __attribute__((interrupt));
+#define GPIO_PORT_HALL_SIG  GPIOA
+#define GPIO_PIN_HALL_SIG   LL_GPIO_PIN_0
 
-void Default_Handler(void)
-{
-  while(1){
-  }
-}
+#define GPIO_PORT_HALL_EN   GPIOA
+#define GPIO_PIN_HALL_EN    LL_GPIO_PIN_7
 
-void EXTI0_IRQHandler(void)
-{
-  if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_0) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
+#define USART_ESP_EN 1
+#define USARTx_ESP             USART1
+#define USARTx_ESP_IRQn        USART1_IRQn
+#define GPIO_PORT_USART_TX     GPIOA
+#define LL_GPIO_PIN_USART_TX   LL_GPIO_PIN_9
+#define GPIO_PORT_USART_RX     GPIOA
+#define LL_GPIO_PIN_USART_RX   LL_GPIO_PIN_10
+#define USART_BAUD             115200
 
-    LL_GPIO_TogglePin(GPIOC, LL_GPIO_PIN_13);
-  }
-}
 
-void TIM2_IRQHandler(void)
-{
-  if(LL_TIM_IsActiveFlag_CC1(TIM2)){
-    LL_TIM_ClearFlag_CC1(TIM2);
-    uint32_t cap_val = LL_TIM_IC_GetCaptureCH1(TIM2);
-    TIM_CaptrueCallback(cap_val);
-  }
-}
+#endif
