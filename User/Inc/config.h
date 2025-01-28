@@ -35,5 +35,7 @@
 #define LL_GPIO_PIN_USART_RX   LL_GPIO_PIN_10
 #define USART_BAUD             115200
 
+#define I2C_INTL               I2C1
+#define I2C_EXTL               I2C2
 
 #endif

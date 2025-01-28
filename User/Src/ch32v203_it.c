@@ -19,12 +19,14 @@
 #include "stm32f1xx_ll_exti.h"
 #include "stm32f1xx_ll_gpio.h"
 #include "stm32f1xx_ll_tim.h"
+#include "stm32f1xx_hal.h"
 #include "usart.h"
 #include "hall.h"
 
 void Default_Handler(void) __attribute__((interrupt));
 void EXTI0_IRQHandler(void) __attribute__((interrupt));
 void TIM2_IRQHandler(void) __attribute__((interrupt));
+void SysTick_Handler(void) __attribute__((interrupt));
 
 void Default_Handler(void)
 {
@@ -49,4 +51,10 @@ void TIM2_IRQHandler(void)
     uint32_t cap_val = LL_TIM_IC_GetCaptureCH1(TIM2);
     TIM_CaptrueCallback(cap_val);
   }
+}
+
+void SysTick_Handler(void)
+{
+  SysTick->SR = 0;
+  HAL_IncTick();
 }

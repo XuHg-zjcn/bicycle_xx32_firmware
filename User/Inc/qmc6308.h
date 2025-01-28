@@ -1,5 +1,5 @@
 /*************************************************************************
- *  串口驱动程序
+ *  QMC6308驱动
  *  Copyright (C) 2025  Xu Ruijun
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,17 +15,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *************************************************************************/
-#ifndef USART_H
-#define USART_H
+#ifndef QMC6308_H
+#define QMC6308_H
 
 #include <stdint.h>
-#include "config.h"
 
-#if USART_ESP_EN
-#define USART_SendAutosize(x) USART_Send(x, sizeof(x))
+typedef struct{
+  int16_t x;
+  int16_t y;
+  int16_t z;
+}QMC6308_Data;
 
-void USART_Init();
-void USART_Send(const uint8_t *data, uint32_t length);
-#endif
+void QMC6308_ReadData(QMC6308_Data *data);
+void QMC6308_SelfTest();
+int QMC6308_Init();
 
 #endif
