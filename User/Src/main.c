@@ -46,9 +46,12 @@ void main()
     while(1);
   }
   while(1){
-    QMC6308_Data mag_data;
-    QMC6308_ReadData(&mag_data);
-    USART_Send((const uint8_t *)&mag_data, sizeof(mag_data));
+    struct{
+	char head[4];
+	QMC6308_Data mag_data;
+    }pack = {{'M', 'A', 'G', 'd'}, {0, 0, 0}};
+    QMC6308_ReadData(&pack.mag_data);
+    USART_Send((const uint8_t *)&pack, sizeof(pack));
     HAL_Delay(200);
   }
 }
