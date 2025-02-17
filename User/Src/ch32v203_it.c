@@ -46,11 +46,7 @@ void EXTI0_IRQHandler(void)
 
 void TIM2_IRQHandler(void)
 {
-  if(LL_TIM_IsActiveFlag_CC1(TIM2)){
-    LL_TIM_ClearFlag_CC1(TIM2);
-    uint32_t cap_val = LL_TIM_IC_GetCaptureCH1(TIM2);
-    TIM_CaptrueCallback(cap_val);
-  }
+  Hall_TIM_Callback();
 }
 
 void SysTick_Handler(void)

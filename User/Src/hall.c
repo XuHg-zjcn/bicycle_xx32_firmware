@@ -15,11 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdbool.h>
 #include "stm32f1xx_ll_bus.h"
 #include "stm32f1xx_ll_gpio.h"
 #include "stm32f1xx_ll_tim.h"
 #include "usart.h"
 #include "config.h"
+
+static uint32_t update_count = 0;
+static uint32_t last_captrue = 0;
 
 void Hall_init()
 {
@@ -46,7 +50,28 @@ void Hall_init()
   LL_TIM_EnableCounter(TIM2);
 }
 
-void TIM_CaptrueCallback(uint32_t cap_val)
+void Hall_TIM_Callback()
 {
-  USART_Send((uint8_t *)&cap_val, 4);
+  _Bool isUpdate = false;
+  struct{
+    char magic[4];
+    uint32_t delta;
+  }pack = {{'H', 'a', 't', 'D'}, 0};
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM2)){
+    LL_TIM_ClearFlag_UPDATE(TIM2);
+    isUpdate = true;
+    update_count++;
+  }
+  if(LL_TIM_IsActiveFlag_CC1(TIM2)){
+    LL_TIM_ClearFlag_CC1(TIM2);
+    uint32_t cap_val = LL_TIM_IC_GetCaptureCH1(TIM2);
+    if(isUpdate && cap_val>=32768 && (((update_count-1)<<16)|cap_val)>last_captrue){
+      cap_val |= ((update_count-1)<<16);
+    }else{
+      cap_val |= (update_count<<16);
+    }
+    pack.delta = cap_val - last_captrue;
+    last_captrue = cap_val;
+    USART_Send((uint8_t *)&pack, sizeof(pack));
+  }
 }
