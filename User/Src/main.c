@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdbool.h>
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_ll_gpio.h"
 #include "stm32f1xx_ll_bus.h"
@@ -23,11 +24,15 @@
 #include "hall.h"
 #include "usart.h"
 #include "internal_i2c.h"
+#include "spi.h"
 #include "qmc6308.h"
+#include "qmi8610.h"
 
 #define LED1_GPIO_PORT GPIOC
 #define LED1_PIN       LL_GPIO_PIN_13
 
+bool ava_ii2c=false, ava_spi=false;
+bool ava_mag=false, ava_imu=false;
 
 void main()
 {
@@ -37,21 +42,45 @@ void main()
   USART_Init();
   USART_SendAutosize("Hello\n");
   Hall_init();
-  if(Internal_I2C_Init() != 0){
+
+  if(Internal_I2C_Init() == 0){ 
     USART_SendAutosize("Internal i2c init failed\n");
-    while(1);
+  }else{
+    ava_ii2c = true;
+    if((ava_mag=QMC6308_Init()) != 0){
+      USART_SendAutosize("QMC6308 init failed\n");
+    }else{
+      ava_mag = true;
+    }
   }
-  if(QMC6308_Init() != 0){
-    USART_SendAutosize("QMC6308 failed\n");
-    while(1);
+
+  if(SPI_Init() != 0){
+    USART_SendAutosize("SPI init failed\n");
+  }else{
+    ava_spi = true;
+    if(QMI8610_Init() != 0){
+      USART_SendAutosize("QMI8610 init failed\n");
+    }else{
+      ava_imu = true;
+    }
   }
   while(1){
     struct{
-	char head[4];
-	QMC6308_Data mag_data;
-    }pack = {{'M', 'A', 'G', 'd'}, {0, 0, 0}};
-    QMC6308_ReadData(&pack.mag_data);
-    USART_Send((const uint8_t *)&pack, sizeof(pack));
-    HAL_Delay(200);
+      char head[4];
+      QMC6308_Data mag_data;
+    }pack_mag = {{'M', 'A', 'G', 'd'}, {0, 0, 0}};
+    struct{
+      char head[4];
+      int16_t data[6];
+    }pack_imu = {{'I', 'M', 'U', 'd'}, {0, 0, 0, 0, 0, 0}};
+    if(ava_mag){
+      QMC6308_ReadData(&pack_mag.mag_data);
+      USART_Send((const uint8_t *)&pack_mag, sizeof(pack_mag));
+    }
+    if(ava_imu){
+      QMI8610_ReadData(&pack_imu.data);
+      USART_Send((const uint8_t *)&pack_imu, sizeof(pack_imu));
+    }
+    HAL_Delay(10);
   }
 }
